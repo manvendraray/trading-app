@@ -3,49 +3,61 @@ import dateutil
 import pandas_ta as pta 
 import datetime
 
-
 def plotly_table(dataframe):
-    headerColor = 'grey'
-    rowEvenColor = '#f8fafd'
-    rowOddColor = '#e1efff'
+    # Colors
+    header_color = "#1f4fd8"
+    row_even_color = "#f5f7fb"
+    row_odd_color = "#ffffff"
+    border_color = "#e0e6f1"
 
-    # Header: one blank for the index column + each column name
-    header_values = ['<b></b>'] + [f"<b>{str(col)[:10]}</b>" for col in dataframe.columns]
+    # Header (blank for index)
+    header_values = [""] + [f"<b>{str(col)[:15]}</b>" for col in dataframe.columns]
 
-    # Cells: first column = index, then one list per dataframe column
+    # Cell values
     index_values = [str(i) for i in dataframe.index]
-    cell_values = [index_values] + [dataframe[col].tolist() for col in dataframe.columns]
+    cell_values = [index_values] + [dataframe[col].astype(str).tolist()
+                                    for col in dataframe.columns]
 
     # Row striping
     n_rows = len(dataframe)
-    row_colors = [rowOddColor if i % 2 == 0 else rowEvenColor for i in range(n_rows)]
-    # One color list per column (index + all data columns)
+    row_colors = [
+        row_odd_color if i % 2 == 0 else row_even_color
+        for i in range(n_rows)
+    ]
     cell_fill_color = [row_colors] * (len(dataframe.columns) + 1)
 
     fig = go.Figure(
         data=[
             go.Table(
+                columnwidth=[60] + [120] * len(dataframe.columns),
                 header=dict(
                     values=header_values,
-                    line_color='#0078ff',
-                    fill_color='#0078ff',
-                    align='center',
-                    font=dict(color='white', size=15),
-                    height=35,
+                    fill_color=header_color,
+                    line_color=border_color,
+                    align="center",
+                    font=dict(color="white", size=16),
+                    height=42,
                 ),
                 cells=dict(
                     values=cell_values,
-                    align='left',
-                    line_color='white',
                     fill_color=cell_fill_color,
-                    font=dict(color='black', size=15),
+                    line_color=border_color,
+                    align=["center"] + ["left"] * len(dataframe.columns),
+                    font=dict(color="#1f2937", size=14),
+                    height=36,
                 ),
             )
         ]
     )
 
-    fig.update_layout(height=400, margin=dict(l=0, r=0, t=0, b=0))
+    fig.update_layout(
+        height=min(60 + n_rows * 38, 600),
+        margin=dict(l=10, r=10, t=10, b=10),
+        paper_bgcolor="white",
+    )
+
     return fig
+
 
 
 def filter_data(dataframe, num_period):
@@ -119,20 +131,49 @@ def candlestick(dataframe, num_period):
 
     fig = go.Figure()
 
-    fig.add_trace(go.Candlestick(
-        x=dataframe['Date'],
-        open=dataframe['Open'],
-        high=dataframe['High'],
-        low=dataframe['Low'],
-        close=dataframe['Close']
-    ))
+    fig.add_trace(
+        go.Candlestick(
+            x=dataframe["Date"],
+            open=dataframe["Open"],
+            high=dataframe["High"],
+            low=dataframe["Low"],
+            close=dataframe["Close"],
+            increasing=dict(
+                line=dict(color="#16a34a", width=1.2),
+                fillcolor="#16a34a",
+            ),
+            decreasing=dict(
+                line=dict(color="#dc2626", width=1.2),
+                fillcolor="#dc2626",
+            ),
+        )
+    )
 
     fig.update_layout(
+        template="plotly_white",
+        height=520,
         showlegend=False,
-        height=500,
-        margin=dict(l=0, r=20, t=20, b=0),
-        plot_bgcolor='white',
-        paper_bgcolor='#e1efff'
+        hovermode="x unified",
+        margin=dict(l=40, r=40, t=40, b=40),
+        paper_bgcolor="#102434",
+        plot_bgcolor="#FFFFFF",
+    )
+
+    fig.update_xaxes(
+        showgrid=True,
+        gridcolor="#e5e7eb",
+        showline=True,
+        linecolor="#d1d5db",
+        rangeslider=dict(visible=False),
+        tickfont=dict(size=12),
+    )
+
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="#e5e7eb",
+        showline=True,
+        linecolor="#d1d5db",
+        tickfont=dict(size=12),
     )
 
     return fig
@@ -320,36 +361,65 @@ def MACD(dataframe, num_period):
 def Moving_average_forecast(forecast):
     fig = go.Figure()
 
+    # Historical prices
     fig.add_trace(
         go.Scatter(
             x=forecast.index[:-30],
             y=forecast['Close'].iloc[:-30],
             mode='lines',
-            name='Close Price',
-            line=dict(width=2, color='black')
+            name='Historical Close',
+            line=dict(width=2.8),
+            hovertemplate="Date: %{x}<br>Close: %{y:.2f}<extra></extra>",
         )
     )
 
+    # Forecasted prices
     fig.add_trace(
         go.Scatter(
             x=forecast.index[-31:],
             y=forecast['Close'].iloc[-31:],
             mode='lines',
-            name='Future Close Price',
-            line=dict(width=2, color='red')
+            name='Forecast',
+            line=dict(width=2.8, dash='dash'),
+            hovertemplate="Date: %{x}<br>Forecast: %{y:.2f}<extra></extra>",
         )
     )
 
-    fig.update_xaxes(rangeslider_visible=True)
     fig.update_layout(
-        height=500,
-        margin=dict(l=0, r=20, t=20, b=0),
-        plot_bgcolor='white',
-        paper_bgcolor='#e1efff',
+        template="plotly_white",
+        title=dict(
+            text="Moving Average Forecast",
+            x=0.5,
+            font=dict(size=20, color="#1f2937"),
+        ),
+        height=520,
+        hovermode="x unified",
+        margin=dict(l=40, r=40, t=70, b=40),
         legend=dict(
-            yanchor='top',
-            xanchor='right'
-        )
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=13),
+        ),
+    )
+
+    fig.update_xaxes(
+        title="Date",
+        showgrid=True,
+        gridcolor="#e5e7eb",
+        showline=True,
+        linecolor="#d1d5db",
+        rangeslider=dict(visible=True, thickness=0.05),
+    )
+
+    fig.update_yaxes(
+        title="Price",
+        showgrid=True,
+        gridcolor="#e5e7eb",
+        showline=True,
+        linecolor="#d1d5db",
     )
 
     return fig

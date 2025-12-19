@@ -22,8 +22,6 @@ st.title("Stock Prediction")
 
 col1, col2, col3 = st.columns(3)
 
-col1, col2, col3 = st.columns(3)
-
 # How user chooses the stock (popular list vs manual input)
 with col1:
     mode = st.radio(
@@ -63,8 +61,3 @@ st.plotly_chart(fig_tail, use_container_width=True)
 forecast = pd.concat([rolling_price, forecast])
 
 st.plotly_chart(Moving_average_forecast(forecast.iloc[150:]), use_container_width=True)
-
-
-
-
-
