@@ -2,7 +2,7 @@ import streamlit as st
 
 # Page config 
 st.set_page_config(
-    page_title="TTime-Series Forecasting",
+    page_title="Time-Series Forecasting",
     page_icon=":chart_with_upwards_trend:",
     layout="wide",
 )
@@ -18,7 +18,7 @@ st.markdown(
 )
 
 # Title
-st.markdown("# TTime-Series Forecasting")
+st.markdown("# Time-Series Forecasting")
 st.markdown(
     """
 **An end-to-end Time-Series Forecasting and technical analysis dashboard built with Python.**
