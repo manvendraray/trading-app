@@ -13,7 +13,6 @@ from pages.utils.plotly_figure import (
     RSI,
     MACD,
 )
-
 # =========================
 # Page config & title
 # =========================

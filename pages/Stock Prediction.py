@@ -40,17 +40,29 @@ rmse = 0
 
 st.subheader('Predicting Next 30 days Close Price for: ' + ticker)
 
-close_price = get_data(ticker)
-rolling_price = get_rolling_mean(close_price)
+if st.button("Run Prediction"):
+    with st.spinner("Fetching data & training model..."):
+        close_price = get_data(ticker)
+        rolling_price = get_rolling_mean(close_price)
 
-differencing_order = get_differencing_order(rolling_price)
-scaled_data, scaler = scaling(rolling_price)
-rmse = evaluate_model(scaled_data, differencing_order)
+        differencing_order = get_differencing_order(rolling_price)
+        scaled_data, scaler = scaling(rolling_price)
 
+        rmse = evaluate_model(scaled_data, differencing_order)
+        st.write("**Model RMSE Score:**", rmse)
 
-st.write("**Model RMSE Score:**", rmse)
+        forecast = get_forecast(scaled_data, differencing_order)
+        forecast['Close'] = inverse_scaling(scaler, forecast['Close'])
 
-forecast = get_forecast(scaled_data, differencing_order)
+        fig_tail = plotly_table(forecast.round(3))
+        st.plotly_chart(fig_tail, use_container_width=True)
+
+        forecast = pd.concat([rolling_price, forecast])
+        st.plotly_chart(
+            Moving_average_forecast(forecast.iloc[150:]),
+            use_container_width=True
+        )
+
 
 forecast['Close'] = inverse_scaling(scaler, forecast['Close'])
 st.write('##### Forecast Data (Next 30 days)')
