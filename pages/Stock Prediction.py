@@ -29,7 +29,7 @@ with col1:
         ["Popular list", "Type manually"],
         horizontal=True,
     )
-
+with col2:
     if mode == "Popular list":
         stock_label = st.selectbox("Choose a stock", list(popular_stocks.keys()))
         ticker = popular_stocks[stock_label]
@@ -60,4 +60,7 @@ st.plotly_chart(fig_tail, use_container_width=True)
 
 forecast = pd.concat([rolling_price, forecast])
 
-st.plotly_chart(Moving_average_forecast(forecast.iloc[150:]), use_container_width=True)
+# st.plotly_chart(Moving_average_forecast(forecast.iloc[150:]), use_container_width=True)
+
+
+
