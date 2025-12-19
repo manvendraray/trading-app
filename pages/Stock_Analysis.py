@@ -138,7 +138,7 @@ with col1:
         {
             "Metric": ["Market Cap", "Beta", "EPS", "PE Ratio"],
             "Value": [
-                stock.info["marketCap"],
+                stock_info.get("marketCap", "N/A"),
                 stock.info["beta"],
                 stock.info["trailingEps"],
                 stock.info["trailingPE"],
