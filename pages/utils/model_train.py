@@ -6,10 +6,8 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from datetime import datetime, timedelta
 import pandas as pd
-import streamlit as st
 
 
-@st.cache_data(ttl=3600)
 def get_data(ticker):
     stock_data = yf.download(ticker, start='2024-01-01')
     return stock_data['Close']
@@ -39,16 +37,19 @@ def get_differencing_order(close_price):
     return d
 
 
-@st.cache_resource
 def fit_model(data, differencing_order):
-    model = ARIMA(data, order=(10, differencing_order, 10))  # 👈 reduce order
+    model = ARIMA(data, order=(30, differencing_order, 30))
     model_fit = model.fit()
-    return model_fit
+
+    forecast_steps = 30
+    forecast = model_fit.get_forecast(steps=forecast_steps)
+
+    predictions = forecast.predicted_mean
+    return predictions
 
 def evaluate_model(original_price, differencing_order):
     train_data, test_data = original_price[:-30], original_price[-30:]
-    model_fit = fit_model(train_data, differencing_order)
-    predictions = model_fit.forecast(steps=30)
+    predictions = fit_model(train_data, differencing_order)
     rmse = np.sqrt(mean_squared_error(test_data, predictions))
     return round(rmse, 2)
 
@@ -60,17 +61,12 @@ def scaling(close_price):
 
 
 def get_forecast(original_price, differencing_order):
-    model_fit = fit_model(original_price, differencing_order)
-    predictions = model_fit.forecast(steps=30)
-
-    forecast_index = pd.date_range(
-        start=datetime.now(),
-        periods=30,
-        freq='D'
-    )
-
-    return pd.DataFrame(predictions, index=forecast_index, columns=['Close'])
-
+    predictions = fit_model(original_price, differencing_order)
+    start_date = datetime.now().strftime('%Y-%m-%d')
+    end_date = (datetime.now() + timedelta(days=29)).strftime('%Y-%m-%d')
+    forecast_index = pd.date_range(start=start_date, end=end_date, freq='D')
+    forecast_df = pd.DataFrame(predictions, index=forecast_index, columns=['Close'])
+    return forecast_df
 
 def inverse_scaling(scaler, scaled_data):
     close_price = scaler.inverse_transform(np.array(scaled_data).reshape(-1, 1))
