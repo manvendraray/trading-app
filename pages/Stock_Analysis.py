@@ -83,7 +83,11 @@ st.subheader(ticker)  # could also use stock_name if you prefer full company nam
 # Company info (yfinance)
 # =========================
 stock = yf.Ticker(ticker)
-stock_info = stock.info
+
+try:
+    stock_info = stock.info
+except Exception:
+    stock_info = {}
 
 # Use a nicer display name if possible
 if mode == "Popular list":
