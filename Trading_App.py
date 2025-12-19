@@ -2,7 +2,7 @@ import streamlit as st
 
 # Page config 
 st.set_page_config(
-    page_title="Trading Guide App",
+    page_title="Trading Guide Apppppp",
     page_icon=":chart_with_upwards_trend:",
     layout="wide",
 )
