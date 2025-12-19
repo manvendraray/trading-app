@@ -23,7 +23,7 @@ st.markdown("# Trading Guide App")
 st.markdown("---")
 
 # Banner image
-st.image("Banner Photo.jpg", use_container_width=True)
+st.image("Flow.png", use_container_width=True)
 
 # Intro
 st.markdown(
