@@ -19,11 +19,11 @@ from pages.utils.plotly_figure import (
 # =========================
 st.set_page_config(
     page_title="Stock Analysis",
-    page_icon="📊",
+    page_icon="",
     layout="wide",
 )
 
-st.markdown("# 📊 Stock Analysis")
+st.markdown("# Stock Analysis")
 st.markdown("---")
 
 today = datetime.date.today()
