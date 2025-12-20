@@ -25,10 +25,7 @@ Stock data is fetched from **Yahoo Finance**.
 
 ## 🧠 How does it work? (Pipeline)
 
-## 🔁 Forecasting Pipeline
-
-![Forecasting Pipeline](flowchart.png)
-
+flowchart.png
 ---
 
 ## 📊 Features
