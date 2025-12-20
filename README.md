@@ -75,5 +75,5 @@ Stock data is fetched from **Yahoo Finance**.
 
 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/trading-app.git
+git clone https://github.com/manvendraray/trading-app.git
 cd trading-app
