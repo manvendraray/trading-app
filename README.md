@@ -25,7 +25,7 @@ Stock data is fetched from **Yahoo Finance**.
 
 ## 🧠 How does it work? (Pipeline)
 
-flowchart.png
+Flowchart.png
 ---
 
 ## 📊 Features
