@@ -6,8 +6,9 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from datetime import datetime, timedelta
 import pandas as pd
+import streamlit as st
 
-
+@st.cache_data(ttl=3600)
 def get_data(ticker):
     stock_data = yf.download(ticker, start='2024-01-01')
     return stock_data['Close']
@@ -18,12 +19,12 @@ def stationary_check(close_price):
     p_value = round(adf_test[1], 3)
     return p_value
 
-
+@st.cache_data
 def get_rolling_mean(close_price):
     rolling_price = close_price.rolling(window=7).mean().dropna()
     return rolling_price
 
-
+@st.cache_data
 def get_differencing_order(close_price):
     p_value = stationary_check(close_price)
     d = 0
@@ -47,19 +48,21 @@ def fit_model(data, differencing_order):
     predictions = forecast.predicted_mean
     return predictions
 
+
+@st.cache_data
 def evaluate_model(original_price, differencing_order):
     train_data, test_data = original_price[:-30], original_price[-30:]
     predictions = fit_model(train_data, differencing_order)
     rmse = np.sqrt(mean_squared_error(test_data, predictions))
     return round(rmse, 2)
 
-
+@st.cache_data
 def scaling(close_price):
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(np.array(close_price).reshape(-1, 1))
     return scaled_data, scaler
 
-
+@st.cache_data
 def get_forecast(original_price, differencing_order):
     predictions = fit_model(original_price, differencing_order)
     start_date = datetime.now().strftime('%Y-%m-%d')
