@@ -62,7 +62,7 @@ if run_model:
     differencing_order = get_differencing_order(rolling_price)
 
     # -------------------------
-    status.info("Scaling data & training ARIMA model...")
+    status.info("Scaling data & training ARIMA model...It may take a few minutes...")
     scaled_data, scaler = scaling(rolling_price)
     rmse = evaluate_model(scaled_data, differencing_order)
 
