@@ -40,27 +40,62 @@ rmse = 0
 
 st.subheader('Predicting Next 30 days Close Price for: ' + ticker)
 
-close_price = get_data(ticker)
-rolling_price = get_rolling_mean(close_price)
+# =========================
+# Run forecast button
+# =========================
+run_model = st.button("Run Forecast")
 
-differencing_order = get_differencing_order(rolling_price)
-scaled_data, scaler = scaling(rolling_price)
-rmse = evaluate_model(scaled_data, differencing_order)
+if run_model:
 
+    status = st.empty()
 
-st.write("**Model RMSE Score:**", rmse)
+    # -------------------------
+    status.info("Fetching historical stock data...")
+    close_price = get_data(ticker)
 
-forecast = get_forecast(scaled_data, differencing_order)
+    # -------------------------
+    status.info("Smoothing prices (rolling mean)...")
+    rolling_price = get_rolling_mean(close_price)
 
-forecast['Close'] = inverse_scaling(scaler, forecast['Close'])
-st.write('##### Forecast Data (Next 30 days)')
-fig_tail = plotly_table(forecast.sort_index(ascending=True).round(3))
-fig_tail.update_layout(height=220)
-st.plotly_chart(fig_tail, use_container_width=True)
+    # -------------------------
+    status.info("Checking stationarity & differencing...")
+    differencing_order = get_differencing_order(rolling_price)
 
-forecast = pd.concat([rolling_price, forecast])
+    # -------------------------
+    status.info("Scaling data & training ARIMA model...")
+    scaled_data, scaler = scaling(rolling_price)
+    rmse = evaluate_model(scaled_data, differencing_order)
 
-st.plotly_chart(Moving_average_forecast(forecast.iloc[150:]), use_container_width=True)
+    # -------------------------
+    status.info("Generating 30-day forecast...")
+    forecast = get_forecast(scaled_data, differencing_order)
+
+    # -------------------------
+    status.success("Forecast completed successfully")
+
+    # =========================
+    # Display results
+    # =========================
+    st.markdown("---")
+    st.write("**Model RMSE Score:**", rmse)
+
+    forecast["Close"] = inverse_scaling(scaler, forecast["Close"])
+
+    st.write("##### Forecast Data (Next 30 days)")
+    fig_table = plotly_table(forecast.sort_index().round(3))
+    fig_table.update_layout(height=220)
+    st.plotly_chart(fig_table, use_container_width=True)
+
+    # Combine history + forecast
+    combined = pd.concat([rolling_price, forecast])
+
+    st.plotly_chart(
+        Moving_average_forecast(combined.iloc[150:]),
+        use_container_width=True,
+    )
+
+else:
+    st.info("Click **Run Forecast** to start the prediction process.")
 
 
 
